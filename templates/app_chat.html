@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat Room</title>
+  <!-- importing socket CDN for io and jquary -->
+  <!--Bootstrap -->
+  <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js">
+  <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.bundle.min.js">
+  <!--css style-->
+  <style type="text/css">
+  div.msg_bbl {
+      background-color: #ddd;
+      padding: 5px 10px;
+      border-radius: 10px;
+      color: #555;
+      margin-bottom: 5px;
+    }
+  div.msg_old {
+    background-color: #FDF5E6;
+    padding: 5px 10px;
+    border-radius: 10px;
+    color: #555;
+    margin-bottom: 5px;
+  }
+  </style>
+
+</head>
+
+<body>
+<div class="container-fluid">
+  <div  style="background-color: #ccc" class="well text-center">
+    <h4> Welcome {{name}}</h4>
+    <hr style="height:1px;border:none;color:#333;background-color:#333;">
+  </div>
+  
+  <div id="no message">
+    <h1 style="color: #ccc"><center>Old Messages!!</center></h1>
+    <div class="message_holder">
+        {% for msg in messages %}
+          <div class="msg_old">
+            <b style="color: #000">{{msg.name}}:</b> <b style="color: #000066">{{msg.message}}</b> <sup style="color:#bf4040">{{msg.date}}</sup><br>
+          </div>
+        {% endfor %}
+    </div>  
+  </div>
+
+  <form action="" method="POST" style="position: absolute;">
+    <div class="form-row" style="margin:10px; width:800px; ">
+      <div class="col">
+        <input type="text" class=" message form-control"  id='' placeholder=" {{ name }}, Type your Message here">
+      </div>
+      <button type="submit" id= 'inputbox' class="btn btn-primary">Send</button>
+    </div>
+  </form>
+</div>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+<script>
+//setting the app
+var socket = io.connect( 'http://localhost:1111/' )
+
+  
+//getting the right cookie for the name
+//going through each cookie and grabbing the one with cookie_name.
+function myCookie(){
+  var cookie = document.cookie;
+  cookie_array = cookie.split(';');
+  for(var i=0; i<cookie_array.length; i++){
+    all_cookie=cookie_array[i].split('=')
+    console.log(all_cookie)
+    if(all_cookie[0].trim()=='cookie_name'){
+      name=all_cookie[1];
+      name=name.replace(/['"]+/g, '');
+      console.log(name)
+      return name;
+    }
+  }
+}
+
+
+//getting the current time and date. 
+function currentTime(){
+  var currentdate = new Date(); 
+  var datetime = currentdate.getDate() + "/" + (currentdate.getMonth()+1)  + "/" + currentdate.getFullYear() + " @ " + currentdate.getHours() + ":"  + currentdate.getMinutes() + ":" + currentdate.getSeconds();
+  return datetime
+}
+  
+
+  
+//broadcasting using socket.on
+socket.on( 'connect', function() {
+  //broadcast a connect message to server
+  socket.emit( 'my event', {
+    data: 'User Connected'
+  } )
+  //on submit of the chat text box broadcasting name, message and datetime to server.
+  var form = $( 'form' ).on( 'submit', function( e ) {
+    e.preventDefault()
+    name = myCookie()
+    let user_input = $( 'input.message' ).val()
+    datetime = currentTime() 
+    //emiting our data to server
+    socket.emit( 'my event', {
+      name: name,
+      message : user_input,
+      date: datetime
+    } )
+    // empty the input field after hitting submit
+    $( 'input.message' ).val( '' ).focus()
+  } )
+} )
+// capture message from server
+socket.on( 'my response', function( msg ) {
+  console.log( msg )
+  //if somethin is type on input box and clicked submited message will display in the div message_holder 
+  if( typeof msg.message !== 'undefined' ) {
+    $( 'h1' ).remove()
+    $( 'div.message_holder' ).append( '<div class="msg_bbl"><b style="color: #000">'+msg.name+':'+'</b> <b style="color: #000066">'+msg.message+ '</b> <sup style="color:#bf4040">'+msg.date+'</sup></div>' )
+  }
+} )
+</script>
+
+</body>
+</html>

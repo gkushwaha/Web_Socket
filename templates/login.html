@@ -1,0 +1,85 @@
+<!-- HTML templet for login page-->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login Page</title>
+	<style >
+
+	html, body{
+    height: 100%;
+
+	}
+	form{
+		margin-top: 40px;
+		margin-right:400px;
+		margin-left: 400px;
+		background-color: rgb(211, 211, 211);
+	}
+
+	</style>
+	<!-- Bootstrap CDN-->
+	<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js">
+	<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.bundle.min.js">
+</head>
+<body>
+	<!--getting the form data through POST method-->
+	<form method="POST" action="">
+		{{ form.hidden_tag() }}
+		<fieldset class="form-group">
+			<legend class="border-bottom mb-4" align="center">Please Log In</legend>
+			<div class="form-group">
+				{{ form.email.label(class="form-control-label")}}
+
+				{% if form.email.errors %}
+					{{ form.email(class="form-control form-control-md is-invalid")}}
+					<div class="invalid-feedback">
+						{% for error in form.email.errors %}
+							<span>{{error}}</span>
+						{% endfor %}
+					</div>
+				{% else %}
+					{{ form.email(class="form-control form-control-md" )}}
+				{% endif %}
+
+			</div>
+			<div class="form-group">
+				{{ form.password.label(class="form-control-label")}}
+				{% if form.password.errors %}
+					{{ form.password(class="form-control form-control-md is-invalid")}}
+					<div class="invalid-feedback">
+						{% for error in form.password.errors %}
+							<span>{{error}}</span>
+						{% endfor %}
+					</div>
+				{% else %}
+					{{ form.password(class="form-control form-control-md" )}}
+				{% endif %}
+			</div>
+			<div class="form-check">
+				{{ form.remember(class="form-check-input")}}
+				{{ form.remember.label(class="form-check-lebel")}}
+			</div>
+		</fieldset>
+		<div class="form-group" align="center">
+				{{form.submit(class="btn btn-outline-info")}}
+		</div>
+		<div class="border-top pt-3">
+			<small class="text-muted" align="center">
+				Doesn't have a account?  <a class="ml-2" href="{{ url_for('resistration')}}">Sign Up</a>
+			</small>
+		</div>
+	</form>
+	<span>
+		{% with message = get_flashed_messages(with_categories=true) %}
+				{% if message %}
+					{% for category, message in messages %}
+						<div class="alert alert {{category}}">
+							{{message}}
+						</div>
+					{% endfor %}
+				{% endif %}
+			{% endwith %}
+	</span>
+</body>
+</html>
